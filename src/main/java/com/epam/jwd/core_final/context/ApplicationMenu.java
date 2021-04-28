@@ -10,7 +10,7 @@ public interface ApplicationMenu {
         return null;
     }
 
-    default Object handleUserInput(Object o) {
+    default Object handleUserInput(ApplicationContext o) {
         return null;
     }
 }
