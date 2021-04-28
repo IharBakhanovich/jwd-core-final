@@ -18,7 +18,7 @@ import java.util.List;
 
 public class InputPlanetReader implements InputReader<Planet> {
 
-    private static final Logger logger = LoggerFactory.getLogger(InputCrewReader.class);
+    private static final Logger logger = LoggerFactory.getLogger(InputPlanetReader.class);
 
     String path;
     String splitter;
@@ -44,6 +44,7 @@ public class InputPlanetReader implements InputReader<Planet> {
                 planets = makeArrayOfPlanet(rawPlanets);
             } catch (EmptyInputFileException exception) {
                 exception.printStackTrace();
+                logger.error("Error occurred during planets collection creation");
             }
         } catch (IOException exception) {
             exception.printStackTrace();
@@ -53,6 +54,7 @@ public class InputPlanetReader implements InputReader<Planet> {
                     bufferReader.close();
                 } catch (IOException e) {
                     e.printStackTrace();
+                    logger.error("Error occurred during closing bufferReader.");
                 }
             }
         }

@@ -3,7 +3,6 @@ package com.epam.jwd.core_final.factory.impl;
 import com.epam.jwd.core_final.domain.Spaceship;
 import com.epam.jwd.core_final.factory.EntityFactory;
 
-import java.awt.*;
 import java.util.Map;
 
 public enum SpaceShipFactory implements EntityFactory<Spaceship> {

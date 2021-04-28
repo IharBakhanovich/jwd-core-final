@@ -4,7 +4,13 @@ import com.epam.jwd.core_final.InputReaderUtil.Impl.InputCrewReader;
 import com.epam.jwd.core_final.InputReaderUtil.Impl.InputPlanetReader;
 import com.epam.jwd.core_final.InputReaderUtil.Impl.InputSpaceshipReader;
 import com.epam.jwd.core_final.context.ApplicationContext;
-import com.epam.jwd.core_final.domain.*;
+import com.epam.jwd.core_final.domain.Planet;
+import com.epam.jwd.core_final.domain.FlightMission;
+import com.epam.jwd.core_final.domain.Spaceship;
+import com.epam.jwd.core_final.domain.CrewMember;
+import com.epam.jwd.core_final.domain.BaseEntity;
+import com.epam.jwd.core_final.domain.MissionResult;
+import com.epam.jwd.core_final.domain.ApplicationProperties;
 import com.epam.jwd.core_final.exception.InvalidStateException;
 import com.epam.jwd.core_final.factory.impl.FlightMissionFactory;
 import com.epam.jwd.core_final.service.impl.SpacemapServiceImpl;
@@ -109,6 +115,7 @@ public class NassaContext implements ApplicationContext {
             changeField("planetMap", inputPlanetReader.fetchMembers());
         } catch (IllegalAccessException | NoSuchFieldException e) {
             e.printStackTrace();
+            logger.error("Error occurred during changing fields");
         }
     }
 
