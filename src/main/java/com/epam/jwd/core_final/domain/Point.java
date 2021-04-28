@@ -1,6 +1,6 @@
 package com.epam.jwd.core_final.domain;
 
-public class Point implements Comparable<Point>{
+public class Point implements Comparable<Point> {
     private final double coordinateX;
     private final double coordinateY;
 
@@ -78,5 +78,10 @@ public class Point implements Comparable<Point>{
                 .append(Math.round(y))
                 .append(")");
         return builder.toString();
+    }
+
+    public double getDistanceBetwiinPoints(Point to) {
+        return Math.sqrt(Math.pow((this.getCoordinateX() - to.getCoordinateX()), 2)
+                + Math.pow((this.getCoordinateY() - to.getCoordinateY()), 2));
     }
 }

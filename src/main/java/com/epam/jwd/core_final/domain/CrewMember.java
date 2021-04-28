@@ -1,4 +1,5 @@
 package com.epam.jwd.core_final.domain;
+
 import com.fasterxml.jackson.databind.ObjectMapper; // ObjectMapper class
 
 import java.io.IOException;

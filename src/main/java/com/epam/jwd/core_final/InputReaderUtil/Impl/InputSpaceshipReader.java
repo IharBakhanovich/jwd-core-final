@@ -80,7 +80,7 @@ public class InputSpaceshipReader implements InputReader<Spaceship> {
             if (!(rawSpaceship[0].charAt(0) == '#')) {
                 String name = rawSpaceship[0];
                 Long distance = Long.valueOf(rawSpaceship[1]);
-                Map<Role, Short> crew = parseCrew(rawSpaceship[2].substring(1,rawSpaceship[2].length()-1));
+                Map<Role, Short> crew = parseCrew(rawSpaceship[2].substring(1, rawSpaceship[2].length() - 1));
                 Spaceship spaceship
                         = SpaceShipFactory.INSTANCE.create(IDGenerator.INSTANCE.getId(), name, crew, distance);
                 spaceships.add(spaceship);
@@ -93,8 +93,8 @@ public class InputSpaceshipReader implements InputReader<Spaceship> {
     private Map<Role, Short> parseCrew(String crew) {
         Map<Role, Short> map = new HashMap<>();
         String[] members = crew.split(splitter2);
-        for (String member:members
-             ) {
+        for (String member : members
+        ) {
             String[] pair = member.split(splitter3);
             Role role = Role.resolveRoleById(Long.parseLong(pair[0]));
             Short amount = Short.parseShort(pair[1]);

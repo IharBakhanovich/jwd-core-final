@@ -13,6 +13,7 @@ import com.epam.jwd.core_final.util.IDGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -20,12 +21,23 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public enum MissionServiceImpl implements MissionService {
-    INSTANCE;
+public class MissionServiceImpl implements MissionService {
 
-    private static final Logger logger = LoggerFactory.getLogger(CrewServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(MissionServiceImpl.class);
 
+    private static MissionServiceImpl missionService;
     ApplicationContext applicationContext;
+
+    private MissionServiceImpl(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
+
+    public static MissionServiceImpl getMissionServiceImpl(ApplicationContext applicationContext) throws IOException {
+        if (missionService == null) {
+            missionService = new MissionServiceImpl(applicationContext);
+        }
+        return missionService;
+    }
 
     @Override
     public List<FlightMission> findAllMissions() {

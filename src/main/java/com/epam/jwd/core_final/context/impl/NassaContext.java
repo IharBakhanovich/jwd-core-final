@@ -6,11 +6,18 @@ import com.epam.jwd.core_final.InputReaderUtil.Impl.InputSpaceshipReader;
 import com.epam.jwd.core_final.context.ApplicationContext;
 import com.epam.jwd.core_final.domain.*;
 import com.epam.jwd.core_final.exception.InvalidStateException;
+import com.epam.jwd.core_final.factory.impl.FlightMissionFactory;
+import com.epam.jwd.core_final.service.impl.SpacemapServiceImpl;
+import com.epam.jwd.core_final.util.IDGenerator;
+import com.epam.jwd.core_final.util.PropertyReaderUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -19,7 +26,7 @@ public class NassaContext implements ApplicationContext {
 
     private static final Logger logger = LoggerFactory.getLogger(InputCrewReader.class);
 
-    private Collection<FlightMission> flightMissions = new ArrayList<>();
+    private final Collection<FlightMission> flightMissions = new ArrayList<>();
     // no getters/setters for them
     private final Collection<CrewMember> crewMembers = new ArrayList<>();
     private final Collection<Spaceship> spaceships = new ArrayList<>();
@@ -48,21 +55,44 @@ public class NassaContext implements ApplicationContext {
      */
     @Override
     public void init() throws InvalidStateException {
-
         try {
             populateCollections();
         } catch (IOException exception) {
             exception.printStackTrace();
             throw new InvalidStateException(exception.getMessage());
         }
+
+        // generates FlightMissions
+        int random = (int) (Math.random() * 50);
+        for (int counter = 1; counter < random; counter++) {
+            FlightMission mission = createMission();
+            if (mission != null) {
+                flightMissions.add(mission);
+            }
+        }
+        ObjectMapper objectMapper = new ObjectMapper();
+        String outputDir = "output";
+        try {
+            outputDir = PropertyReaderUtil.getPropertyReaderUtil().getOutputRootDir();
+        } catch (IOException exception) {
+            exception.printStackTrace();
+            logger.error("I/O error during the loading properties");
+        }
+        String path = "src/main/resources/" + outputDir + "/missions.json";
+        File file = new File(path);
+        file.getParentFile().mkdirs();
+        try {
+            objectMapper.writeValue(new File(path), flightMissions);
+        } catch (IOException exception) {
+            exception.printStackTrace();
+            logger.error("Error occured during recording the 'missions.json' file");
+        }
     }
 
     private void populateCollections() throws IOException {
-        logger.info("NassaContext.init() has started");
 
         ApplicationProperties applicationProperties = ApplicationProperties.getApplicationProperties();
         String inputRootDir = "src/main/resources/" + applicationProperties.getInputRootDir() + "/";
-        System.out.println("Input root is: " + inputRootDir); ///////////////////////////////////////////
 
         String pathToCrewFile = inputRootDir + applicationProperties.getCrewFileName();
         InputCrewReader inputCrewReader = new InputCrewReader(pathToCrewFile, ";", ",");
@@ -80,26 +110,6 @@ public class NassaContext implements ApplicationContext {
         } catch (IllegalAccessException | NoSuchFieldException e) {
             e.printStackTrace();
         }
-
-//             NassaContext nassaContext = new NassaContext(inputCrewReader.fetchMembers(),
-//                inputSpaceshipReader.fetchMembers(), inputPlanetReader.fetchMembers());
-
-        System.out.println("COLLECTIONS ARE: ");/////////////////////////////////////////////////////////
-        System.out.println("CREWMEMBERS");
-        for (CrewMember crewMember : crewMembers
-        ) {
-            System.out.println(crewMember);
-        }
-        System.out.println("SPACESHIPS");
-        for (Spaceship spaceship : spaceships
-        ) {
-            System.out.println(spaceship);
-        }
-        System.out.println("PLANETS");
-        for (Planet planet : planetMap
-        ) {
-            System.out.println(planet);
-        }
     }
 
     private void changeField(String name, Object value) throws IllegalAccessException, NoSuchFieldException {
@@ -108,11 +118,31 @@ public class NassaContext implements ApplicationContext {
         field.set(this, value);
     }
 
-    public Collection<FlightMission> getFlightMissions() {
-        return flightMissions;
-    }
+    private FlightMission createMission() {
+        final int DAYSINYEAR = 365;
+        int dayOfTheYearOne = (int) (Math.random() * DAYSINYEAR);
+        int dayOfTheYearTwo = (int) (Math.random() * DAYSINYEAR);
+        LocalDate startDate = LocalDate.ofYearDay(2022, dayOfTheYearOne);
+        LocalDate endDate = LocalDate.ofYearDay(2023, dayOfTheYearTwo);
+        Planet planetFrom = null;
+        Planet planetTo = null;
+        Long distance = 0L;
+        try {
+            planetFrom = SpacemapServiceImpl.getSpacemapServiceImpl(this).getRandomPlanet();
+            planetTo = SpacemapServiceImpl.getSpacemapServiceImpl(this).getRandomPlanet();
+            distance = Long.valueOf(SpacemapServiceImpl
+                    .getSpacemapServiceImpl(this).getDistanceBetweenPlanets(planetFrom, planetTo));
+        } catch (IOException exception) {
+            exception.printStackTrace();
+            logger.warn("The I/O error occurred during the mission creating");
+        }
+        MissionResult missionResult = MissionResult.IN_PROGRESS;
 
-    public void setFlightMissions(Collection<FlightMission> flightMissions) {
-        this.flightMissions = flightMissions;
+        String name = "From_" + planetFrom.getName() + "_To_" + planetTo.getName();
+        if (!planetFrom.getId().equals(planetTo.getId())) {
+            return FlightMissionFactory.INSTANCE.create(IDGenerator.INSTANCE.getId(),
+                    name, startDate, endDate, distance, missionResult, planetFrom, planetTo);
+        }
+        return null;
     }
 }

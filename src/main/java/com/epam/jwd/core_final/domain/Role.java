@@ -29,15 +29,16 @@ public enum Role implements BaseEntity {
 
     /**
      * todo via java.lang.enum methods!
+     *
      * @throws UnknownEntityException if such id does not exist
      */
     public static Role resolveRoleById(Long id) {
-        for (Role role: Role.values()
+        for (Role role : Role.values()
         ) {
             if (role.getId().equals(id)) {
                 return role;
             }
         }
-        throw  new UnknownEntityException("There is no Role with the id = " + id);
+        throw new UnknownEntityException("There is no Role with the id = " + id);
     }
 }

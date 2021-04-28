@@ -56,7 +56,6 @@ public enum ApplicationMenuImpl implements ApplicationMenu {
         tokens = getUserInput(scanner);
         while (!tokens[0].equals("q")) {
             //catches the wrong name of the command
-            System.out.println("the token[0] is " + tokens[0]); //////////////////////////////
             while (!tokens[0].equalsIgnoreCase("c")
                     && !tokens[0].equalsIgnoreCase("p")
                     && !tokens[0].equalsIgnoreCase("s")
@@ -90,7 +89,8 @@ public enum ApplicationMenuImpl implements ApplicationMenu {
                     for (Spaceship spaceship : o.retrieveBaseEntityList(Spaceship.class)
                     ) {
                         System.out.println(spaceship);
-                    } break;
+                    }
+                    break;
                 case ("m"):
                     System.out.println(MISSIONS_PRESENTATION);
                     for (FlightMission flightMission : o.retrieveBaseEntityList(FlightMission.class)
@@ -130,7 +130,7 @@ public enum ApplicationMenuImpl implements ApplicationMenu {
         prompt();
     }
 
-    private String[] getUserInput(Scanner scanner){
+    private String[] getUserInput(Scanner scanner) {
         System.out.println(FIRST_LEVEL_MENU);
         prompt();
         String readScanner = scanner.nextLine();

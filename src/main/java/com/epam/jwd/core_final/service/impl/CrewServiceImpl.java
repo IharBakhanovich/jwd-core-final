@@ -15,6 +15,7 @@ import com.epam.jwd.core_final.util.IDGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -22,12 +23,25 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public enum CrewServiceImpl implements CrewService {
-    INSTANCE;
+// the Singleton
+public class CrewServiceImpl implements CrewService {
 
     private static final Logger logger = LoggerFactory.getLogger(CrewServiceImpl.class);
 
+    private static CrewServiceImpl crewService;
+
     ApplicationContext applicationContext;
+
+    private CrewServiceImpl(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
+
+    public static CrewServiceImpl getCrewServiceImpl(ApplicationContext applicationContext) throws IOException {
+        if (crewService == null) {
+            crewService = new CrewServiceImpl(applicationContext);
+        }
+        return crewService;
+    }
 
     @Override
     public List<CrewMember> findAllCrewMembers() {

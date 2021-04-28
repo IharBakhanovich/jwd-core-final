@@ -16,7 +16,7 @@ public final class PropertyReaderUtil {
     private static final Logger logger = LoggerFactory.getLogger(PropertyReaderUtil.class);
     private static final Properties properties = new Properties();
 
-    private PropertyReaderUtil() throws FileNotFoundException, IOException{
+    private PropertyReaderUtil() throws FileNotFoundException, IOException {
         loadProperties();
     }
 
@@ -39,7 +39,7 @@ public final class PropertyReaderUtil {
      * as a result - you should populate {@link ApplicationProperties} with corresponding
      * values from property file
      */
-    public void loadProperties() throws IOException{
+    public void loadProperties() throws IOException {
         final String propertiesFileName = "src/main/resources/application.properties";
 
         InputStream inputStream = null;

@@ -14,6 +14,7 @@ import com.epam.jwd.core_final.util.IDGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -21,12 +22,24 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public enum SpaceshipServiceImpl implements SpaceshipService {
-    INSTANCE;
+//the singleton
+public class SpaceshipServiceImpl implements SpaceshipService {
 
     private static final Logger logger = LoggerFactory.getLogger(SpaceshipServiceImpl.class);
 
+    private static SpaceshipServiceImpl spaceshipService;
     ApplicationContext applicationContext;
+
+    private SpaceshipServiceImpl(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
+
+    public static SpaceshipServiceImpl getSpaceshipServiceImpl(ApplicationContext applicationContext) throws IOException {
+        if (spaceshipService == null) {
+            spaceshipService = new SpaceshipServiceImpl(applicationContext);
+        }
+        return spaceshipService;
+    }
 
     @Override
     public List<Spaceship> findAllSpaceships() {
