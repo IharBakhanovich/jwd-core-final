@@ -3,6 +3,7 @@ package com.epam.jwd.core_final.context.impl;
 import com.epam.jwd.core_final.context.ApplicationContext;
 import com.epam.jwd.core_final.context.ApplicationMenu;
 import com.epam.jwd.core_final.criteria.CrewMemberCriteria;
+import com.epam.jwd.core_final.criteria.FlightMissionCriteria;
 import com.epam.jwd.core_final.criteria.PlanetCriteria;
 import com.epam.jwd.core_final.domain.*;
 import com.epam.jwd.core_final.factory.impl.CrewMemberFactory;
@@ -10,9 +11,12 @@ import com.epam.jwd.core_final.service.impl.CrewServiceImpl;
 import com.epam.jwd.core_final.service.impl.MissionServiceImpl;
 import com.epam.jwd.core_final.service.impl.SpacemapServiceImpl;
 import com.epam.jwd.core_final.service.impl.SpaceshipServiceImpl;
+import com.epam.jwd.core_final.util.PropertyReaderUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Scanner;
@@ -93,6 +97,13 @@ public enum ApplicationMenuImpl implements ApplicationMenu {
     public static final String I_O_ERROR_DURING_FETCHING_ALL_PLANETS_BY_SPACEMAP_SERVICE = "I/O error during fetching all planets by spacemapService";
     public static final String THERE_ARE_NO_SUCH_PLANETS_IN_SYSTEM = "There are no such planets in system";
     public static final String I_O_ERROR_DURING_GET_DISTANCE_METHOD_IN_SPACEMAP_SERVICE = "I/O error during getDistance method in SpacemapService";
+    private static final String MISSIONS_MENU = "\n"
+            + "Input 'm id', if you want to write the information about the mission the ID = id in .json file." + "\n"
+            + "Input 'q' to go to main menu.";
+    ;
+    public static final String I_O_ERROR_BY_FETCHING_MISSION = "I/O error by fetching mission";
+    public static final String THERE_IS_NO_SUCH_A_MISSION = "There is no such a mission.";
+    public static final String I_O_ERROR_DURING_THE_LOADING_PROPERTIES = "I/O error during the loading properties";
 
     ApplicationContext applicationContext;
 
@@ -186,6 +197,7 @@ public enum ApplicationMenuImpl implements ApplicationMenu {
                         exception.printStackTrace();
                         logger.error(I_O_ERROR_BY_FETCHING_MISSIONS_WITH_THE_METHOD_FIND_ALL_MISSIONS);
                     }
+                    missionsMenu(scanner, tokens);
                     break;
             }
             System.out.println(GREAT_WHAT_NEXT);
@@ -193,6 +205,69 @@ public enum ApplicationMenuImpl implements ApplicationMenu {
             tokens = getUserInput(scanner);
         }
         return null;
+    }
+
+    private void missionsMenu(Scanner scanner, String[] tokens) {
+        System.out.println(MISSIONS_MENU);
+        tokens = getUserInput(scanner);
+        while (!tokens[0].equalsIgnoreCase("q")) {
+            //catches the wrong name of the command
+            while (!tokens[0].equalsIgnoreCase("m")
+                    && !tokens[0].equalsIgnoreCase("q")) {
+                error(WRONG_COMMAND, MISSIONS_MENU, TRY_AGAIN);
+                tokens = getUserInput(scanner);
+            }
+            switch (tokens[0]) {
+                case ("m"):
+                    if (isCheckedForID(tokens)) break;
+                    Collection<FlightMission> missions = null;
+                    FlightMissionCriteria missionCriteria
+                            = new FlightMissionCriteria.Builder()
+                            .whereIdEquals(Long.parseLong(tokens[1]))
+                            .build();
+                    try {
+                        missions = MissionServiceImpl
+                                .getMissionServiceImpl(applicationContext)
+                                .findAllMissionsByCriteria(missionCriteria);
+                    } catch (IOException exception) {
+                        exception.printStackTrace();
+                        logger.error(I_O_ERROR_BY_FETCHING_MISSION);
+                    }
+                    if (missions == null || missions.isEmpty()) {
+                        error(THERE_IS_NO_SUCH_A_MISSION, MISSIONS_MENU, TRY_AGAIN);
+                        break;
+                    } else {
+                        String missionName = missions.iterator().next().getName();
+                        ObjectMapper objectMapper = new ObjectMapper();
+                        String outputDir = "output";
+                        try {
+                            outputDir = PropertyReaderUtil.getPropertyReaderUtil().getOutputRootDir();
+                        } catch (IOException exception) {
+                            exception.printStackTrace();
+                            logger.error(I_O_ERROR_DURING_THE_LOADING_PROPERTIES);
+                        }
+                        System.out.println("Fetched mission is: \n" + missions.iterator().next());
+                        String path = "src/main/resources/" + outputDir + "/" + missionName + ".json";
+                        File file = new File(path);
+                        file.getParentFile().mkdirs();
+                        try {
+                            objectMapper.writeValue(new File(path), missions);
+                        } catch (IOException exception) {
+                            exception.printStackTrace();
+                            logger.error("Error occured during recording the 'missions.json' file");
+                        }
+                    }
+                    break;
+                case ("q"):
+                    break;
+            }
+            if (tokens[0].equalsIgnoreCase("q")) {
+                return;
+            }
+            System.out.println(MISSIONS_MENU);
+            tokens = getUserInput(scanner);
+        }
+
     }
 
     private void planetsMenu(Scanner scanner, String[] tokens) {
@@ -209,7 +284,6 @@ public enum ApplicationMenuImpl implements ApplicationMenu {
             switch (tokens[0]) {
                 case ("d"):
                     if (isCheckedForIDs(tokens)) break;
-                    // Collection<Planet> planets;
                     Collection<Planet> planetByIDOne = null;
                     Collection<Planet> planetByIDTwo = null;
                     PlanetCriteria planetCriteriaOne
@@ -247,8 +321,8 @@ public enum ApplicationMenuImpl implements ApplicationMenu {
                             distance = SpacemapServiceImpl
                                     .getSpacemapServiceImpl(applicationContext)
                                     .getDistanceBetweenPlanets(planet1, planet2);
-                            System.out.println("The distance between" + planet1
-                                    + " and " + planet2 + "is: " + distance + " km.");
+                            System.out.println("The distance between" + "\n" + planet1 + "\n"
+                                    + " and " + "\n" + planet2 + "\n" + "is: " + distance + " km.");
                         } catch (IOException exception) {
                             exception.printStackTrace();
                             logger.error(I_O_ERROR_DURING_GET_DISTANCE_METHOD_IN_SPACEMAP_SERVICE);

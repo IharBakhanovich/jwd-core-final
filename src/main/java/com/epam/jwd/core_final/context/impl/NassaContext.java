@@ -137,8 +137,8 @@ public class NassaContext implements ApplicationContext {
         try {
             planetFrom = SpacemapServiceImpl.getSpacemapServiceImpl(this).getRandomPlanet();
             planetTo = SpacemapServiceImpl.getSpacemapServiceImpl(this).getRandomPlanet();
-            distance = Long.valueOf(SpacemapServiceImpl
-                    .getSpacemapServiceImpl(this).getDistanceBetweenPlanets(planetFrom, planetTo));
+            distance = (long) SpacemapServiceImpl
+                    .getSpacemapServiceImpl(this).getDistanceBetweenPlanets(planetFrom, planetTo);
         } catch (IOException exception) {
             exception.printStackTrace();
             logger.warn("The I/O error occurred during the mission creating");
