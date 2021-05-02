@@ -107,7 +107,8 @@ public class InputCrewReader implements InputReader<CrewMember> {
                         break;
                 }
             }
-            CrewMember crewMember = CrewMemberFactory.INSTANCE.create(IDGenerator.INSTANCE.getId(), name, role, rank);
+            CrewMember crewMember = CrewMemberFactory
+                    .INSTANCE.create(IDGenerator.INSTANCE.getId(), name, role, rank, true);
             crewMembers.add(crewMember);
         }
         return crewMembers;

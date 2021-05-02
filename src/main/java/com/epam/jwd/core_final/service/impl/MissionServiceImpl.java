@@ -3,10 +3,8 @@ package com.epam.jwd.core_final.service.impl;
 import com.epam.jwd.core_final.context.ApplicationContext;
 import com.epam.jwd.core_final.criteria.Criteria;
 import com.epam.jwd.core_final.criteria.FlightMissionCriteria;
-import com.epam.jwd.core_final.domain.CrewMember;
 import com.epam.jwd.core_final.domain.FlightMission;
 import com.epam.jwd.core_final.exception.NotAbleToBeAssignedException;
-import com.epam.jwd.core_final.exception.UnknownEntityException;
 import com.epam.jwd.core_final.factory.impl.FlightMissionFactory;
 import com.epam.jwd.core_final.service.MissionService;
 import com.epam.jwd.core_final.util.IDGenerator;
@@ -71,19 +69,14 @@ public class MissionServiceImpl implements MissionService {
     public FlightMission updateSpaceshipDetails(FlightMission flightMission) {
         FlightMissionCriteria criteria = new FlightMissionCriteria.Builder().whereIdEquals(flightMission.getId()).build();
         FlightMission updatedFlightMission = null;
-        if (findMissionByCriteria(criteria).isPresent()) {
-            // deletes crewMember from the context
-            applicationContext.retrieveBaseEntityList(CrewMember.class)
-                    .removeIf((Predicate<? super CrewMember>) criteria.getPredicates());
-            updatedFlightMission = FlightMissionFactory.INSTANCE.create(flightMission.getId(), flightMission.getName(),
-                    flightMission.getStartDate(), flightMission.getEndDate(), flightMission.getDistance(),
-                    flightMission.getMissionResult(), flightMission.getFrom(), flightMission.getTo());
-            // wrights updatedCrewMember to the context
-            applicationContext.retrieveBaseEntityList(FlightMission.class).add(updatedFlightMission);
-        } else {
-            logger.info("The attempt to update a not existed in context mission.");
-            throw new UnknownEntityException("there is no such a mission in system");
-        }
+        // deletes flightMission from the context
+        applicationContext.retrieveBaseEntityList(FlightMission.class)
+                .removeIf(flightMission1 -> flightMission1.getId().equals(flightMission.getId()));
+        updatedFlightMission = FlightMissionFactory.INSTANCE.create(flightMission.getId(), flightMission.getName(),
+                flightMission.getStartDate(), flightMission.getEndDate(), flightMission.getDistance(),
+                flightMission.getMissionResult(), flightMission.getFrom(), flightMission.getTo());
+        // wrights updatedCrewMember to the context
+        applicationContext.retrieveBaseEntityList(FlightMission.class).add(updatedFlightMission);
         return updatedFlightMission;
     }
 

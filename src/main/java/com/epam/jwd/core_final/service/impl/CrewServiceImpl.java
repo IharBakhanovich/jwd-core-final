@@ -8,7 +8,6 @@ import com.epam.jwd.core_final.domain.FlightMission;
 import com.epam.jwd.core_final.domain.Spaceship;
 import com.epam.jwd.core_final.exception.NotAbleToBeAssignedException;
 import com.epam.jwd.core_final.exception.NotAbleToBeCreatedException;
-import com.epam.jwd.core_final.exception.UnknownEntityException;
 import com.epam.jwd.core_final.factory.impl.CrewMemberFactory;
 import com.epam.jwd.core_final.service.CrewService;
 import com.epam.jwd.core_final.util.IDGenerator;
@@ -77,18 +76,13 @@ public class CrewServiceImpl implements CrewService {
     public CrewMember updateCrewMemberDetails(CrewMember crewMember) {
         CrewMemberCriteria criteria = new CrewMemberCriteria.Builder().whereIdEquals(crewMember.getId()).build();
         CrewMember updatedCrewMember = null;
-        if (findCrewMemberByCriteria(criteria).isPresent()) {
-            // deletes crewMember from the context
-            applicationContext.retrieveBaseEntityList(CrewMember.class)
-                    .removeIf((Predicate<? super CrewMember>) criteria.getPredicates());
-            updatedCrewMember = CrewMemberFactory.INSTANCE.create(crewMember.getId(), crewMember.getName(),
-                    crewMember.getRole(), crewMember.getRank());
-            // wrights updatedCrewMember to the context
-            applicationContext.retrieveBaseEntityList(CrewMember.class).add(updatedCrewMember);
-        } else {
-            logger.error("The attempt to update a not existed in context member.");
-            throw new UnknownEntityException("There is no such a crewMember in system.");
-        }
+        // deletes crewMember from the context
+        applicationContext.retrieveBaseEntityList(CrewMember.class)
+                .removeIf(crewMember1 -> crewMember1.getId().equals(crewMember.getId()));
+        updatedCrewMember = CrewMemberFactory.INSTANCE.create(crewMember.getId(), crewMember.getName(),
+                crewMember.getRole(), crewMember.getRank(), crewMember.isReadyForNextMission());
+        // wrights updatedCrewMember to the context
+        applicationContext.retrieveBaseEntityList(CrewMember.class).add(updatedCrewMember);
         return updatedCrewMember;
     }
 
@@ -142,7 +136,7 @@ public class CrewServiceImpl implements CrewService {
         }
 
         CrewMember newCrewMember = CrewMemberFactory.INSTANCE.create(IDGenerator.INSTANCE.getId(), crewMember.getName(),
-                crewMember.getRole(), crewMember.getRank());
+                crewMember.getRole(), crewMember.getRank(), true);
         applicationContext.retrieveBaseEntityList(CrewMember.class).add(newCrewMember);
         return newCrewMember;
     }

@@ -75,18 +75,13 @@ public class SpaceshipServiceImpl implements SpaceshipService {
     public Spaceship updateSpaceshipDetails(Spaceship spaceship) {
         SpaceshipCriteria criteria = new SpaceshipCriteria.Builder().whereIdEquals(spaceship.getId()).build();
         Spaceship updatedSpaceShip = null;
-        if (findSpaceshipByCriteria(criteria).isPresent()) {
-            // deletes spaceShip from the context
-            applicationContext.retrieveBaseEntityList(Spaceship.class)
-                    .removeIf((Predicate<? super Spaceship>) criteria.getPredicates());
-            updatedSpaceShip = SpaceShipFactory.INSTANCE.create(spaceship.getId(), spaceship.getName(),
-                    spaceship.getCrew(), spaceship.getFlightDistance());
-            // wrights updatedSpaceShip to the context
-            applicationContext.retrieveBaseEntityList(Spaceship.class).add(updatedSpaceShip);
-        } else {
-            logger.error("The attempt to update a not existed in context spaceship.");
-            throw new UnknownEntityException("There is no such a spaceShip in system.");
-        }
+        // deletes spaceShip from the context
+        applicationContext.retrieveBaseEntityList(Spaceship.class)
+                .removeIf(spaceship1 -> spaceship1.getId().equals(spaceship.getId()));
+        updatedSpaceShip = SpaceShipFactory.INSTANCE.create(spaceship.getId(), spaceship.getName(),
+                spaceship.getCrew(), spaceship.getFlightDistance());
+        // wrights updatedSpaceShip to the context
+        applicationContext.retrieveBaseEntityList(Spaceship.class).add(updatedSpaceShip);
         return updatedSpaceShip;
     }
 

@@ -11,6 +11,6 @@ public enum CrewMemberFactory implements EntityFactory<CrewMember> {
 
     @Override
     public CrewMember create(Object... args) {
-        return new CrewMember((Long) args[0], (String) args[1], (Role) args[2], (Rank) args[3]);
+        return new CrewMember((Long) args[0], (String) args[1], (Role) args[2], (Rank) args[3], (Boolean) args[4]);
     }
 }
